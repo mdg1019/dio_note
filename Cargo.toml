@@ -8,6 +8,7 @@ edition = "2021"
 
 [dependencies]
 dioxus = { version = "0.7.1", features = [] }
+directories = "6.0.0"
 
 [features]
 default = ["desktop"]

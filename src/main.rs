@@ -1,3 +1,5 @@
+mod files;
+mod global;
 use dioxus::prelude::*;
 
 const FAVICON: Asset = asset!("/assets/favicon.ico");
@@ -5,7 +7,19 @@ const MAIN_CSS: Asset = asset!("/assets/main.css");
 const HEADER_SVG: Asset = asset!("/assets/header.svg");
 
 fn main() {
+    let result = run();
+
+    if let Err(e) = result {
+        eprintln!("Error: {}", e);
+    }
+}
+
+fn run() -> Result<(), Box<dyn std::error::Error>> {
+    let config = global::Global::init()?;
+    println!("Documents Directory: {:?}", config.documents_dir);
+    println!("Current Directory: {:?}", config.current_dir);
     dioxus::launch(App);
+    Ok(())
 }
 
 #[component]
