@@ -1,6 +1,8 @@
 mod files;
 mod global;
 use dioxus::prelude::*;
+use dioxus_desktop::{Config, use_window};
+
 
 const FAVICON: Asset = asset!("/assets/favicon.ico");
 const MAIN_CSS: Asset = asset!("/assets/main.css");
@@ -18,12 +20,16 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     let config = global::Global::init()?;
     println!("Documents Directory: {:?}", config.documents_dir);
     println!("Current Directory: {:?}", config.current_dir);
-    dioxus::launch(App);
+    
+    LaunchBuilder::desktop()
+        .with_cfg(Config::new().with_menu(None))
+        .launch(App);
+
     Ok(())
 }
 
 #[component]
-fn App() -> Element {
+fn App() -> Element {  
     rsx! {
         document::Link { rel: "icon", href: FAVICON }
         document::Link { rel: "stylesheet", href: MAIN_CSS }
