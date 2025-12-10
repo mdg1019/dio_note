@@ -1,7 +1,7 @@
 mod files;
 mod global;
 use dioxus::prelude::*;
-use dioxus_desktop::{Config, use_window};
+use dioxus_desktop::{Config};
 
 
 const FAVICON: Asset = asset!("/assets/favicon.ico");
@@ -17,9 +17,9 @@ fn main() {
 }
 
 fn run() -> Result<(), Box<dyn std::error::Error>> {
-    let config = global::Global::init()?;
-    println!("Documents Directory: {:?}", config.documents_dir);
-    println!("Current Directory: {:?}", config.current_dir);
+    let global = global::Global::init()?;
+    println!("Documents Directory: {:?}", global.documents_dir);
+    println!("Current Directory: {:?}", global.current_dir);
     
     LaunchBuilder::desktop()
         .with_cfg(Config::new().with_menu(None))
