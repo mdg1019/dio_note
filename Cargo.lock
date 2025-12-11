@@ -560,6 +560,7 @@ dependencies = [
  "dioxus",
  "dioxus-desktop",
  "directories",
+ "muda",
 ]
 
 [[package]]

@@ -2,6 +2,7 @@ mod files;
 mod global;
 use dioxus::prelude::*;
 use dioxus_desktop::{Config};
+use muda::{Menu, Submenu, MenuItem, MenuEvent, accelerator::{Accelerator, Modifiers, Code}};
 
 
 const FAVICON: Asset = asset!("/assets/favicon.ico");
@@ -21,8 +22,24 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     println!("Documents Directory: {:?}", global.documents_dir);
     println!("Current Directory: {:?}", global.current_dir);
     
+    let menu = Menu::new();
+    let file_submenu = Submenu::new("File", true);
+
+    let open_item = MenuItem::new("Open", true, Some(Accelerator::new(Some(Modifiers::CONTROL), Code::KeyO)));
+    file_submenu.append(&open_item)?;
+    
+    menu.append(&file_submenu)?;
+
+    let open_id = open_item.id().clone();
+
+    MenuEvent::set_event_handler(Some(move |evt: MenuEvent| {
+        if evt.id() == &open_id {
+            println!("Open menu item clicked");
+        }
+    }));
+
     LaunchBuilder::desktop()
-        .with_cfg(Config::new().with_menu(None))
+        .with_cfg(Config::new().with_menu(Some(menu)))
         .launch(App);
 
     Ok(())
