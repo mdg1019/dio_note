@@ -5,6 +5,11 @@ mod window_menu;
 use dioxus::prelude::*;
 use dioxus_desktop::{Config};
 
+#[derive(Clone)]
+struct TextEditorState {
+    content: String,
+    filename: String,
+}
 
 const FAVICON: Asset = asset!("/assets/favicon.ico");
 const MAIN_CSS: Asset = asset!("/assets/main.css");
@@ -32,32 +37,36 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
 
 #[component]
 fn App() -> Element {  
+    let text_editor_state = use_signal(|| TextEditorState{
+        content: String::new(),
+        filename: String::new(),
+    });
+    use_context_provider(|| text_editor_state);
+
     rsx! {
         document::Link { rel: "icon", href: FAVICON }
         document::Link { rel: "stylesheet", href: MAIN_CSS }
         TextEditor {}
     }
 }
-
 #[component]
 pub fn TextEditor() -> Element {
-    let mut content = use_signal(|| String::new());
-    let mut filename = use_signal(|| String::from("untitled.txt"));
+    let mut text_editor_state = use_context::<Signal<TextEditorState>>();
 
     rsx! {
         div {
             class: "text-editor",
             div {
-                class: "toolbar",
                 input {
                     r#type: "text",
-                    value: "{filename}",
-                    oninput: move |e| filename.set(e.value()),
+                    value: "{text_editor_state.read().filename}",
+                    oninput: move |e| text_editor_state.write().filename = e.value(),
                     placeholder: "Filename"
                 }
                 button {
                     onclick: move |_| {
-                        if let Err(e) = save_file(&filename(), &content()) {
+                        let state = text_editor_state.read();
+                        if let Err(e) = save_file(&state.filename, &state.content) {
                             eprintln!("Error saving file: {}", e);
                         }
                     },
@@ -65,20 +74,21 @@ pub fn TextEditor() -> Element {
                 }
                 button {
                     onclick: move |_| {
-                        match load_file(&filename()) {
-                            Ok(text) => content.set(text),
+                        let filename = text_editor_state.read().filename.clone();
+                        match load_file(&filename) {
+                            Ok(text) => text_editor_state.write().content = text,
                             Err(e) => eprintln!("Error loading file: {}", e),
                         }
                     },
                     "Load"
                 }
-            }
-            textarea {
-                class: "editor-area",
-                value: "{content}",
-                oninput: move |e| content.set(e.value()),
-                rows: "20",
-                cols: "80"
+                textarea {
+                    class: "editor-area",
+                    value: "{text_editor_state.read().content}",
+                    oninput: move |e| text_editor_state.write().content = e.value(),
+                    rows: "20",
+                    cols: "80",
+                }
             }
         }
     }
